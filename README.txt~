@@ -1,0 +1,17 @@
+TPlink Archer C7 V2.0 (c'est marqué sur l'ettiquette de la boite)
+
+
+switch port
+
+0  eth1
+1  wan
+2  lan1
+3  lan2
+4  lan3
+5  lan4 
+6  eth0
+
+le port wan (je pense que c'est le connecteur rj45 bleu). Il est connecté à eth0
+
+https://wiki.openwrt.org/doc/howto/secure.access
+
