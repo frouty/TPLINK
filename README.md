@@ -1,18 +1,33 @@
-TPlink Archer C7 V2.0 (c'est marqué sur l'ettiquette de la boite)
+TPlink Archer C7 V2.0 (c'est marqué sur l'etiquette de la boite)
+
+# First install
+login : admin / password : admin
+image à installer openwrt-15-05-ar71xx-generic-archer-c7-v2-squashfs-factory.bin
 
 
-metre dans /etc/profile export PS1='\[\033[35;1m\]\u\[\033[0m\]@\[\033[31;1m\]\h \[\033[32;1m\]$PWD\[\033[0m\] [\[\033[35m\]\#\[\033[0m\]]\[\033[31m\]\$\[\033[0m\] '
+https://wiki.openwrt.org/toh/hwdata/tp-link/tp-link_archer_c7_ac1750_v2.0
+
+https://lede-project.org/toh/hwdata/tp-link/tp-link_archer_c7_ac1750_v2.0
+
+initialement on a le factory firmware : 3.15.1 Build 160616 Rel.44182n 
+
+
+
+metre dans /etc/profile:
+```
+ export PS1='\[\033[35;1m\]\u\[\033[0m\]@\[\033[31;1m\]\h \[\033[32;1m\]$PWD\[\033[0m\] [\[\033[35m\]\#\[\033[0m\]]\[\033[31m\]\$\[\033[0m\] '
+ ```
 c'est plus jolie.
 
 switch port
 
-0  eth1
-1  wan
-2  lan1
-3  lan2
-4  lan3
-5  lan4 
-6  eth0
+0  eth1  
+1  wan  
+2  lan1  
+3  lan2  
+4  lan3  
+5  lan4   
+6  eth0  
 
 le port wan (je pense que c'est le connecteur rj45 bleu). Il est connecté à eth0
 
@@ -21,9 +36,9 @@ https://wiki.openwrt.org/doc/howto/secure.access
 
 Dans la configuration du routeur a aucun moment je n'ai besoin de donner le ipv4 gateway adresse ni l'adresse du dns server.Je ne comprends pas pourquoi.
 
-pour connaitre les paquets disponibles opkg search *openvpn*
+pour connaitre les paquets disponibles `opkg search *openvpn*`
 
-logread -f
+`logread -f`
 
 Config du serveur VPN : https://wiki.openwrt.org/doc/howto/vpn.openvpnPour voir les logs: Status /system log.
 
@@ -112,3 +127,64 @@ On doit pouvoir pinguer n'importe qu'elle machine sur le LAN du server à partir
 
 Depuis le client traceroute 192.168.10.65 (ip address LAN du réseau du serveur)
 ping 192.168.10.65
+
+
+# configuration du TPlink en wifi AP.
+## Edit the lan interface
+### arreter le service DHCP pour la lan interface
+### Créer une nouvelle interface wireless
+Dans le fichier /etc/config/wireless on a :
+- wifi-device qui concerne l'aspect matériel
+- wifi-interface qui concerne l'aspect reseau
+
+Pour ce faire network / wireless / add puis :
+- device configuration on ne fait rien
+- interface configuration:
+	- ESSID: un nom qui va bien (ie RADIO_GUEST)
+	- Mode:  access point 
+	- Network : create : un nom qui va bien (ie IF_GUEST)
+	- Save and Apply
+On voit que dans le fichier /etc/config/wireless on a juste ajouté:
+
+```
+config wifi-iface
+	option device 'radio0'
+	option mode 'ap'
+	option encryption 'none'
+	option ssid 'RADIO_GUEST'
+	option network 'IF_GUEST'
+```
+
+On se retrouve avec deux SSID. On doit donc pouvoir soit à l'un soit à l'autre. 
+
+### configurer cette nouvelle interface
+On voit que dans le fichier /etc/config/network ce qui est nouveau c'est :
+```
+config interface 'IF_GUEST'
+	option proto 'none'
+```
+- network / interface:
+- common config
+	- protocol : static address . Really switch protocol? switch protocol
+	- IPv4 address : une address d'un autre subnet que celle du lan.
+	- IPv4 netmask: 255.255.255.0
+	- IPv4 gateway : on laisse vide 
+- DHCP Server
+	- setup DHCP server
+	- configurer les addresses ip pour éviter les conflits d'ip
+- onglet firewall setting:
+	- pour cette nouvelle interface on crée une nouvelle zone. unspecified or create: GUEST_ZONE.  
+Ce qui ajoute ceci au fichier /etc/config/firewall
+
+```
+config zone
+	option name 'GUEST_ZONE'
+	option input 'ACCEPT'
+	option forward 'REJECT'
+	option output 'ACCEPT'
+	option network 'IF_GUEST'
+```	
+
+### configurer le firewall
+network / firewall
+
