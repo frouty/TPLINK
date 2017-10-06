@@ -131,8 +131,8 @@ ping 192.168.10.65
 
 # configuration du TPlink en wifi AP.
 ## Edit the lan interface
-### arreter le service DHCP pour la lan interface
-### Créer une nouvelle interface wireless
+### arreter le service DHCP pour la lan interface
+### Créer une nouvelle interface wireless
 Dans le fichier /etc/config/wireless on a :
 - wifi-device qui concerne l'aspect matériel
 - wifi-interface qui concerne l'aspect reseau
@@ -157,7 +157,7 @@ config wifi-iface
 
 On se retrouve avec deux SSID. On doit donc pouvoir soit à l'un soit à l'autre. 
 
-### configurer cette nouvelle interface
+### configurer cette nouvelle interface
 On voit que dans le fichier /etc/config/network ce qui est nouveau c'est :
 ```
 config interface 'IF_GUEST'
@@ -185,6 +185,6 @@ config zone
 	option network 'IF_GUEST'
 ```	
 
-### configurer le firewall
+### configurer le firewall
 network / firewall
 
