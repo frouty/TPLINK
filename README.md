@@ -265,7 +265,7 @@ Add
 - metric inchange
 - mtu inchangé
 
-Et la bingo j'arrive à pinguer depuis le routeur principal l'adresse 192.168.4.x d'un device connecté à l'access point.  
+Et la bingo j'arrive à pinguer depuis le routeur principal l'adresse 192.168.4.x d'un device connecté à l'access point.  Je n'y arrive plus.
 Par contre je ne peux pas surfer  
 
 ```
@@ -282,3 +282,9 @@ iptables -I forwarding_ZONE_GUEST_rule -p tcp -m tcp --dport 443 -j ACCEPT -m co
 iptables -I forwarding_Z_Wifi_Mitg_rule -d 192.168.2.0/24 -j REJECT
 # Add a closing NewLine, otherwise the last command may be not interpreted correctly (e.g. because you did not use vi as editor).
 ```
+depuis le routeur principal je peux pinguer : 192.168.4.1. Je ne peux pas pinguer un device connecté en 192.168.4.x.  
+Depuis le device connecté en 192.168.4.x je peux pinguer 8.8.8.8, 139.130.4.5. Je ne peux pas pinguer www.google.com
+Depuis l'AP je peux pinguer 8.8.8.8 mais pas www.google.com  
+donc j'ajoute  dans network / interface / lan / use custom DNS server : 8.8.8.8
+et c'est bon je peux surfer depuis le device.
+et aussi network / interface / lan / use custom DNS server : 192.168.1.1 (adresse lan du routeur principal)
