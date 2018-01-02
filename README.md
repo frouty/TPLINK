@@ -129,11 +129,12 @@ Si on change le chemin il faudra adapter au fichier de config de openvpn.
 # distribution des certificats sur le client openvpn
 On fait cela comme on veut. clef usb, mail....etc...   
 
-depuis le ssh du router TPLINk: scp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-client.* lof@ipduclient:/home/lof/TPLINK.  
+depuis le ssh du router TPLINk: scp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-client.* lfs@ipduclient:/home/lof/TPLINK.  
 Mais en fait les mettre dans le /etc/openvpn du client.
 
-On diffuse le ca.crt et tout ce qui concerne le client. On a un .csr .crt .key  
 
+On diffuse le ca.crt et tout ce qui concerne le client. On a un .csr .crt .key  
+ Il sont dans mon bitbucket maintenant.
 
 # Configuration du reseau sur le openwrt router (je ne sais pas si j'ai fait comme cela)
 
