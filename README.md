@@ -252,6 +252,18 @@ tun0 avec comme ip 10.8.0.1 qui est configurée dans le /etc/config/openvpn.
 
 
 
+Mais plus de connection extranet. Je reboot le reouter pas de connection internet. Le serveur openerp a l'air d'etre ok. 
+Je le stop et disable dans startup. Je le reboot. et a nouveau pas de connection internet. donc je reboot le modem adsl.
+J'essaie de redémarrer le serveur openvpn pour voir si c'est lui qui fait tomber la connection internet. 
+- 1 enable dans startup 
+- 2 start dans service.
+et c'est bon j'ai la connection extranet.
+
+IP 103.17.47.187
+
+
+
+
 Quand est ce qu'on donne l'adresse du serveur vpn? dans le fichier de configuration du client /etc/config/openvpn : option remote SERVER_IP_ADRESS 1194
 option remote 'pw.openvpn.ipredator.se 1194'
 ```
@@ -330,6 +342,9 @@ mais je ne sais pas si il marche.
 
 
 
+
+
+
 # Dans le web gui on peut configurer openvpn
 avec des choix : 
 - client configuration for a routed multi-client vpn0
@@ -337,6 +352,10 @@ avec des choix :
 
 et cela utilise le fichier /etc/config/openvpn_recipes.
  
+
+
+
+
 
 
 
