@@ -92,6 +92,9 @@ je vois que j'ai des nouveaux fichiers dans /etc/easy-rsa/keys
 
 
 # pkitool --server my-openvpn_server  
+
+choisir un nom my-openvpn_server court et ayant du sens car on va le réutiliser dans d'autres fichiers de config et s'affiche dans le webGUI.
+
 nouveaux fichiers dans /etc/easy-rsa/keys  
   01.pem   
                 index.txt.attr  
@@ -102,19 +105,24 @@ index.txt              my_openvpn_server.csr
 
 
 # pkitool my-openvpn-client
+Choisir un nom court et ayant du sens...
+
+
 j'ai des nouveaux fichiers my-openvpn-client;*  
 
 Je vois que cela utilise des parametres qui sont dans `/etc/easy-rsa/vars`, que l'on doit pouvoir customiser.
 
 # openssl  dhparam -out dh2048.pm 2048
 C'est long ...  
-
+Trop long ... on peut diner.
 
 # Copie  des certificats
 cp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-server.* /etc/easy-rsa/keys/dh2048.pem /etc/openvpn
 
+Si on change le chemin il faudra adapter au fichier de config de openvpn.
+
 # distribution des certificats sur le client openvpn
-On fait cela comme on veut.
+On fait cela comme on veut. clef usb, mail....etc...   
 
 depuis le ssh du router TPLINk: scp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-client.* lof@ipduclient:/home/lof/TPLINK.  
 Mais en fait les mettre dans le /etc/openvpn du client.
@@ -179,12 +187,35 @@ uci commit firewall
 /etc/init.d/firewall reload
 ```
 
+# configuration de OpenVPN 
+en tun server
 
+```
+echo > /etc/config/openvpn # clear the openvpn uci config
+uci set openvpn.myvpn=openvpn
+uci set openvpn.myvpn.enabled=1
+uci set openvpn.myvpn.verb=3
+uci set openvpn.myvpn.port=1194
+uci set openvpn.myvpn.proto=udp
+uci set openvpn.myvpn.dev=tun
+uci set openvpn.myvpn.server='10.8.0.0 255.255.255.0'
+uci set openvpn.myvpn.keepalive='10 120'
+uci set openvpn.myvpn.ca=/etc/openvpn/ca.crt 
+uci set openvpn.myvpn.cert=/etc/openvpn/my-server.crt  # hackme
+uci set openvpn.myvpn.key=/etc/openvpn/my-server.key # hackme
+uci set openvpn.myvpn.dh=/etc/openvpn/dh2048.pem
+uci commit openvpn
+```
 
+# demarrage du server
+```
+/etc/init.d/openvpn enable
+/etc/init.d/openvpn start
+```
 
 Quand est ce qu'on donne l'adresse du seveur vpn? dans le fichier de configuration du client /etc/config/openvpn : option remote SERVER_IP_ADRESS 1194
 option remote 'pw.openvpn.ipredator.se 1194'
-
+```
 
  YOu will need to open port 1194 (TCP) to be forwarding through the firewall to your OpenVPN server.
 
@@ -234,6 +265,41 @@ On doit pouvoir pinguer n'importe qu'elle machine sur le LAN du server à partir
 
 Depuis le client traceroute 192.168.10.65 (ip address LAN du réseau du serveur)
 ping 192.168.10.65
+
+
+# /etc/config/openvpn
+```
+config openvpn 'myvpn'
+        option enable '1'
+        option verb '3'
+        option port '1194'
+        option proto 'udp'
+        option dev 'tun'
+        option server '10.8.0.0 255.255.255.0'
+        option keepalive '10 120'
+        option ca '/etc/openvpn/ca.crt'
+        option dh '/etc/openvpn/dh2048.pem'
+        option cert '/etc/openvpn/my.server.crt'
+        option key '/etc/openvpn/my.server.key'
+        option log '/tmp/openvpn.log'
+        option ifconfig_pool_persit '/tmp/ipp.txt'
+        option status '/tmp/openvpn-status.log'
+        list push 'route 10.66.0.0 255.255.255.0'
+        list push 'dhcp-option DNS 10.66.0.1'
+```
+mais je ne sais pas si il marche.
+
+
+
+# Dans le web gui on peut configurer openvpn
+avec des choix : 
+- client configuration for a routed multi-client vpn0
+- ....
+
+et cela utilise le fichier /etc/config/openvpn_recipes.
+ 
+
+
 
 
 # configuration du TPlink en wifi AP.
