@@ -128,12 +128,16 @@ uci set network.vpn0.ifname=tun0
 uci set network.vpn0.proto=none
 uci set network.vpn0.auto=1
 ```
-Allow incoming client connections by opening the server port (default 1194) in our firewall:
+
+- 2 Allow incoming client connections by opening the server port (default 1194) in our firewall:
+```
 uci set firewall.Allow_OpenVPN_Inbound=rule
 uci set firewall.Allow_OpenVPN_Inbound.target=ACCEPT
 uci set firewall.Allow_OpenVPN_Inbound.src=*
 uci set firewall.Allow_OpenVPN_Inbound.proto=udp
 uci set firewall.Allow_OpenVPN_Inbound.dest_port=1194
+```
+
 Create firewall zone (named vpn) for the new vpn0 network. By default, it will allow both incoming and outgoing connections being created within the VPN tunnel. Edit the defaults as required. This does not (yet) allow clients to access the LAN or WAN networks, but allows clients to communicate with services on the router and may allow connections between VPN clients if your OpenVPN server configuration allows:
 uci set firewall.vpn=zone
 uci set firewall.vpn.name=vpn
