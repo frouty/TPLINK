@@ -48,7 +48,7 @@ Config du serveur VPN : https://wiki.openwrt.org/doc/howto/vpn.openvpnPour voir 
 interet du vpn: Guest network access can easily be granted because you do not need to care about the things your guests are using your Internet for. :)https://blog.ipredator.se/howto/openwrt/configuring-openvpn-on-openwrt.html
 
 
-# Création des clefs
+# Création des clefs/certificats.
 Le fichier de conf de easy-rsa est dans /etc/easy-rsa/vars.
 ./clean-all pour tout effacer
 
@@ -70,7 +70,7 @@ ca n'a pas marché avec les commandes ci dessus.
 
 Mais avec :
   
-pkitool --initca                      ## equivalent to the 'build-ca' script
+pkitool --initca                      ## equivalent to the 'build-ca' script --> crée une cler privée ca.key.
 pkitool --server my-server            ## equivalent to the 'build-key-server' script
 pkitool          my-client            ## equivalent to the 'build-key' script (*not build-key-pkcs12)
 openssl dhparam -out dh2048.pem 2048  ## equivalent to the 'build-dh' script
@@ -82,6 +82,87 @@ If everything went fine, the last log line from OpenVPN should contain Initializ
 On cherche s'il y a une interface tun avec ifconfig -a
 On regarde la table de routage avec netsat -nr. On doit avoir et c'est essentiel une route vers le serveur VPN (xxx.xxx.XXX.XXX), une route 
 On fait un traceroute pour voir si on va vers le server vpn.
+
+# pkitool --initca 
+je vois que j'ai des nouveaux fichiers dans /etc/easy-rsa/keys  
+- ca.crt  
+- ca.key  
+-index.txt qui est vide
+- serial avec 01 dedans.
+
+
+# pkitool --server my-openvpn_server  
+nouveaux fichiers dans /etc/easy-rsa/keys  
+  01.pem   
+                index.txt.attr  
+         my_openvpn_server.key  
+ca.crt                 index.txt.old          serial
+ca.key                 my_openvpn_server.crt  serial.old
+index.txt              my_openvpn_server.csr
+
+
+# pkitool my-openvpn-client
+j'ai des nouveaux fichiers my-openvpn-client;*  
+
+Je vois que cela utilise des parametres qui sont dans `/etc/easy-rsa/vars`, que l'on doit pouvoir customiser.
+
+# openssl  dhparam -out dh2048.pm 2048
+C'est long ...  
+
+
+# Copie  des certificats
+cp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-server.* /etc/easy-rsa/keys/dh2048.pem /etc/openvpn
+
+# distribution des certificats sur le client openvpn
+On fait cela comme on veut.
+
+depuis le ssh du router TPLINk: scp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-client.* lof@ipduclient:/home/lof/TPLINK.  
+Mais en fait les mettre dans le /etc/openvpn du client.
+
+# Configuration du reseau sur le openwrt router
+
+- 1 Create the VPN interface (named vpn0):
+```
+uci set network.vpn0=interface
+uci set network.vpn0.ifname=tun0
+uci set network.vpn0.proto=none
+uci set network.vpn0.auto=1
+```
+Allow incoming client connections by opening the server port (default 1194) in our firewall:
+uci set firewall.Allow_OpenVPN_Inbound=rule
+uci set firewall.Allow_OpenVPN_Inbound.target=ACCEPT
+uci set firewall.Allow_OpenVPN_Inbound.src=*
+uci set firewall.Allow_OpenVPN_Inbound.proto=udp
+uci set firewall.Allow_OpenVPN_Inbound.dest_port=1194
+Create firewall zone (named vpn) for the new vpn0 network. By default, it will allow both incoming and outgoing connections being created within the VPN tunnel. Edit the defaults as required. This does not (yet) allow clients to access the LAN or WAN networks, but allows clients to communicate with services on the router and may allow connections between VPN clients if your OpenVPN server configuration allows:
+uci set firewall.vpn=zone
+uci set firewall.vpn.name=vpn
+uci set firewall.vpn.network=vpn0
+uci set firewall.vpn.input=ACCEPT
+uci set firewall.vpn.forward=REJECT
+uci set firewall.vpn.output=ACCEPT
+uci set firewall.vpn.masq=1
+(Optional) If you plan to allow clients to connect to computers within your LAN, you'll need to allow traffic to be forwarded between the vpn firewall zone and the lan firewall zone:
+uci set firewall.vpn_forwarding_lan_in=forwarding
+uci set firewall.vpn_forwarding_lan_in.src=vpn
+uci set firewall.vpn_forwarding_lan_in.dest=lan
+And you'll probably want to allow your LAN computers to be able to initiate connections with the clients, too.
+uci set firewall.vpn_forwarding_lan_out=forwarding
+uci set firewall.vpn_forwarding_lan_out.src=lan
+uci set firewall.vpn_forwarding_lan_out.dest=vpn
+(Optional) Similarly, if you plan to allow clients to connect the internet (WAN) through the tunnel, you must allow traffic to be forwarded between the vpn firewall zone and the wan firewall zone:
+uci set firewall.vpn_forwarding_wan=forwarding
+uci set firewall.vpn_forwarding_wan.src=vpn
+uci set firewall.vpn_forwarding_wan.dest=wan
+Commit the changes:
+uci commit network
+/etc/init.d/network reload
+uci commit firewall
+/etc/init.d/firewall reload
+
+
+
+
 
 Quand est ce qu'on donne l'adresse du seveur vpn? dans le fichier de configuration du client /etc/config/openvpn : option remote SERVER_IP_ADRESS 1194
 option remote 'pw.openvpn.ipredator.se 1194'
@@ -98,6 +179,11 @@ ip a show tun0
 
 dig TXT +short o-o.myaddr.l.google.com @ns1.google.com
 
+## clean-all 
+me dit que si je fais ./clean-all alors j'efface les directory /etc/easy-rsa/keys  
+mais ./clean-all me dit que la commande n'existe.
+
+mais je me retrouve avec un repertoire keys vide. 
 
 # comment tester le server openvpn
 - If you don't mind reconfiguring your network, you could also unplug the modem, plug a computer in its place, set the router WAN to a static IP (192.168.64.1) and the computer on 192.168.64.2, and try connecting to the VPN using the .1 IP.
