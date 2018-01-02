@@ -155,20 +155,22 @@ uci set firewall.vpn.masq=1
 uci set firewall.vpn_forwarding_lan_in=forwarding
 uci set firewall.vpn_forwarding_lan_in.src=vpn
 uci set firewall.vpn_forwarding_lan_in.dest=lan
-And you'll probably want to allow your LAN computers to be able to initiate connections with the clients, too.
+```
+
+- 5 And you'll probably want to allow your LAN computers to be able to initiate connections with the clients, too.
 uci set firewall.vpn_forwarding_lan_out=forwarding
 uci set firewall.vpn_forwarding_lan_out.src=lan
 uci set firewall.vpn_forwarding_lan_out.dest=vpn
 ```
 
-- 5 (Optional) Similarly, if you plan to allow clients to connect the internet (WAN) through the tunnel, you must allow traffic to be forwarded between the vpn firewall zone and the wan firewall zone:
+- 6 (Optional) Similarly, if you plan to allow clients to connect the internet (WAN) through the tunnel, you must allow traffic to be forwarded between the vpn firewall zone and the wan firewall zone:
 ```
 uci set firewall.vpn_forwarding_wan=forwarding
 uci set firewall.vpn_forwarding_wan.src=vpn
 uci set firewall.vpn_forwarding_wan.dest=wan
 ```
 
-- 6 Commit the changes:
+- 7 Commit the changes:
 ```
 uci commit network
 /etc/init.d/network reload
