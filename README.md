@@ -112,20 +112,28 @@ j'ai des nouveaux fichiers my-openvpn-client;*
 
 Je vois que cela utilise des parametres qui sont dans `/etc/easy-rsa/vars`, que l'on doit pouvoir customiser.
 
-# openssl  dhparam -out dh2048.pm 2048
+# openssl  dhparam -out dh2048.pem 2048
 C'est long ...  
 Trop long ... on peut diner.
+apres tout ce temps je ne vois pas le fichier dh2048.pem dans /etc/easy-rsa/keys  
+
 
 # Copie  des certificats
 cp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-server.* /etc/easy-rsa/keys/dh2048.pem /etc/openvpn
 
+On copie le ca.crt et tous ce qui concerne le serveur et le dh2048.pem  
+
 Si on change le chemin il faudra adapter au fichier de config de openvpn.
+
 
 # distribution des certificats sur le client openvpn
 On fait cela comme on veut. clef usb, mail....etc...   
 
 depuis le ssh du router TPLINk: scp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-client.* lof@ipduclient:/home/lof/TPLINK.  
 Mais en fait les mettre dans le /etc/openvpn du client.
+
+On diffuse le ca.crt et tout ce qui concerne le client. On a un .csr .crt .key  
+
 
 # Configuration du reseau sur le openwrt router (je ne sais pas si j'ai fait comme cela)
 
@@ -213,7 +221,37 @@ uci commit openvpn
 /etc/init.d/openvpn start
 ```
 
-Quand est ce qu'on donne l'adresse du seveur vpn? dans le fichier de configuration du client /etc/config/openvpn : option remote SERVER_IP_ADRESS 1194
+Parfois rien ne se passe. J'ai du faire un reboot pour voir dans services  / openvpn une instance de nom `myvpn` qui correspond au nom dans le fichier /etc/config/openvpn.
+
+cat /tmp/openvpn.log:
+```
+Tue Jan  2 23:02:33 2018 OpenVPN 2.3.6 mips-openwrt-linux-gnu [SSL (OpenSSL)] [LZO] [EPOLL] [MH] [IPv6] built on Jul 25 2015
+Tue Jan  2 23:02:33 2018 library versions: OpenSSL 1.0.2g  1 Mar 2016, LZO 2.08
+Tue Jan  2 23:02:33 2018 Diffie-Hellman initialized with 2048 bit key
+Tue Jan  2 23:02:33 2018 Socket Buffers: R=[163840->131072] S=[163840->131072]
+Tue Jan  2 23:02:33 2018 TUN/TAP device tun0 opened
+Tue Jan  2 23:02:33 2018 TUN/TAP TX queue length set to 100
+Tue Jan  2 23:02:33 2018 do_ifconfig, tt->ipv6=0, tt->did_ifconfig_ipv6_setup=0
+Tue Jan  2 23:02:33 2018 /sbin/ifconfig tun0 10.8.0.1 pointopoint 10.8.0.2 mtu 1500
+Tue Jan  2 23:02:33 2018 /sbin/route add -net 10.8.0.0 netmask 255.255.255.0 gw 10.8.0.2
+Tue Jan  2 23:02:33 2018 UDPv4 link local (bound): [undef]
+Tue Jan  2 23:02:33 2018 UDPv4 link remote: [undef]
+Tue Jan  2 23:02:33 2018 MULTI: multi_init called, r=256 v=256
+Tue Jan  2 23:02:33 2018 IFCONFIG POOL: base=10.8.0.4 size=62, ipv6=0
+Tue Jan  2 23:02:33 2018 Initialization Sequence Completed
+```
+
+et je vois apparaitre une nouvelle interface en faisant ifconfig sur le router:
+
+tun0 avec comme ip 10.8.0.1 qui est configurée dans le /etc/config/openvpn.
+
+
+
+`/etc/init.d/openvpn enable or disable` se retrouve dans le webgui system / startup 
+
+
+
+Quand est ce qu'on donne l'adresse du serveur vpn? dans le fichier de configuration du client /etc/config/openvpn : option remote SERVER_IP_ADRESS 1194
 option remote 'pw.openvpn.ipredator.se 1194'
 ```
 
