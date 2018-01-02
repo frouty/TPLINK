@@ -119,7 +119,7 @@ On fait cela comme on veut.
 depuis le ssh du router TPLINk: scp /etc/easy-rsa/keys/ca.crt /etc/easy-rsa/keys/my-openvpn-client.* lof@ipduclient:/home/lof/TPLINK.  
 Mais en fait les mettre dans le /etc/openvpn du client.
 
-# Configuration du reseau sur le openwrt router
+# Configuration du reseau sur le openwrt router (je ne sais pas si j'ai fait comme cela)
 
 - 1 Create the VPN interface (named vpn0):
 ```
@@ -138,7 +138,9 @@ uci set firewall.Allow_OpenVPN_Inbound.proto=udp
 uci set firewall.Allow_OpenVPN_Inbound.dest_port=1194
 ```
 
-Create firewall zone (named vpn) for the new vpn0 network. By default, it will allow both incoming and outgoing connections being created within the VPN tunnel. Edit the defaults as required. This does not (yet) allow clients to access the LAN or WAN networks, but allows clients to communicate with services on the router and may allow connections between VPN clients if your OpenVPN server configuration allows:
+
+- 3 Create firewall zone (named vpn) for the new vpn0 network. By default, it will allow both incoming and outgoing connections being created within the VPN tunnel. Edit the defaults as required. This does not (yet) allow clients to access the LAN or WAN networks, but allows clients to communicate with services on the router and may allow connections between VPN clients if your OpenVPN server configuration allows:
+```
 uci set firewall.vpn=zone
 uci set firewall.vpn.name=vpn
 uci set firewall.vpn.network=vpn0
@@ -146,7 +148,10 @@ uci set firewall.vpn.input=ACCEPT
 uci set firewall.vpn.forward=REJECT
 uci set firewall.vpn.output=ACCEPT
 uci set firewall.vpn.masq=1
-(Optional) If you plan to allow clients to connect to computers within your LAN, you'll need to allow traffic to be forwarded between the vpn firewall zone and the lan firewall zone:
+```
+
+- 4 (Optional) If you plan to allow clients to connect to computers within your LAN, you'll need to allow traffic to be forwarded between the vpn firewall zone and the lan firewall zone:
+```
 uci set firewall.vpn_forwarding_lan_in=forwarding
 uci set firewall.vpn_forwarding_lan_in.src=vpn
 uci set firewall.vpn_forwarding_lan_in.dest=lan
@@ -154,16 +159,22 @@ And you'll probably want to allow your LAN computers to be able to initiate conn
 uci set firewall.vpn_forwarding_lan_out=forwarding
 uci set firewall.vpn_forwarding_lan_out.src=lan
 uci set firewall.vpn_forwarding_lan_out.dest=vpn
-(Optional) Similarly, if you plan to allow clients to connect the internet (WAN) through the tunnel, you must allow traffic to be forwarded between the vpn firewall zone and the wan firewall zone:
+```
+
+- 5 (Optional) Similarly, if you plan to allow clients to connect the internet (WAN) through the tunnel, you must allow traffic to be forwarded between the vpn firewall zone and the wan firewall zone:
+```
 uci set firewall.vpn_forwarding_wan=forwarding
 uci set firewall.vpn_forwarding_wan.src=vpn
 uci set firewall.vpn_forwarding_wan.dest=wan
-Commit the changes:
+```
+
+- 6 Commit the changes:
+```
 uci commit network
 /etc/init.d/network reload
 uci commit firewall
 /etc/init.d/firewall reload
-
+```
 
 
 
