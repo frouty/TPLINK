@@ -158,6 +158,7 @@ uci set firewall.vpn_forwarding_lan_in.dest=lan
 ```
 
 - 5 And you'll probably want to allow your LAN computers to be able to initiate connections with the clients, too.
+```
 uci set firewall.vpn_forwarding_lan_out=forwarding
 uci set firewall.vpn_forwarding_lan_out.src=lan
 uci set firewall.vpn_forwarding_lan_out.dest=vpn
