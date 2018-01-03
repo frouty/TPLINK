@@ -13,6 +13,7 @@ initialement on a le factory firmware : 3.15.1 Build 160616 Rel.44182n
 
 
 
+
 metre dans /etc/profile:
 ```
  export PS1='\[\033[35;1m\]\u\[\033[0m\]@\[\033[31;1m\]\h \[\033[32;1m\]$PWD\[\033[0m\] [\[\033[35m\]\#\[\033[0m\]]\[\033[31m\]\$\[\033[0m\] '
@@ -47,6 +48,7 @@ Config du serveur VPN : https://wiki.openwrt.org/doc/howto/vpn.openvpnPour voir 
 
 interet du vpn: Guest network access can easily be granted because you do not need to care about the things your guests are using your Internet for. :)https://blog.ipredator.se/howto/openwrt/configuring-openvpn-on-openwrt.html
 
+https://wiki.openwrt.org/doc/howto/vpn.openvpn
 
 # Création des clefs/certificats.
 Le fichier de conf de easy-rsa est dans /etc/easy-rsa/vars.
@@ -265,14 +267,12 @@ IP 103.17.47.187
 
 
 Quand est ce qu'on donne l'adresse du serveur vpn? dans le fichier de configuration du client /etc/config/openvpn : option remote SERVER_IP_ADRESS 1194
-option remote 'pw.openvpn.ipredator.se 1194'
-```
+option remote `pw.openvpn.ipredator.se 1194`
 
- YOu will need to open port 1194 (TCP) to be forwarding through the firewall to your OpenVPN server.
-
+You will need to open port 1194 (TCP) to be forwarding through the firewall to your OpenVPN server.  
 
 You can easily find out your OpenVPN server IP address. The syntax is as follows to get tun0 ip address on Unix or Linux:
-ifconfig tun0
+`ifconfig tun0`
 
 OR use Linux specific command:
 ip a show tun0
@@ -289,16 +289,97 @@ mais je me retrouve avec un repertoire keys vide.
 - If you don't mind reconfiguring your network, you could also unplug the modem, plug a computer in its place, set the router WAN to a static IP (192.168.64.1) and the computer on 192.168.64.2, and try connecting to the VPN using the .1 IP.
 - En utilisant une connection 3G
 - En changeant l'option remote pour qu'elle pointe vers l'adresse IP privée du serveur openvpn.
-~~~
+```
 client
 dev tap
 proto udp
 # remote yourddns.dyndns.org 5712
 remote 192.168.1.160 5712
-~~~~
+```
+
+# Le client sur une debian:
+cd /etc/openvpn  
+touch client.conf  
+y mettre
+```
+dev tun
+proto udp
+
+verb 3
+
+ca /etc/openvpn/ca.crt
+cert /etc/openvpn/my-openvpn-client.crt
+key /etc/openvpn/my-openvpn-client.key
+
+client 
+remote-cert-tls server
+remote kuendu.ddns.net 1194
+```
+
+On démarre le client avec la commande `service openvpn stop service openvpn start`  
+Pas besoin de mettre le chemin du fichier de config le script init va chercher automatiquement les .conf dans /etc/openvp.  
+
+Ou est le fichier de log?
+
+Dans le script /etc/init.d/openvpn on des lignes comme:
+log_daemon_msg  
+log_progress_msg  
+log_end_msg  
+log_action_msg  
+log_success_msg  
+log_failure_msg  
+log_warning_msg  
+
+Il semblerait que les msg s'affiche en console.
+
+
+
+
+
+
+
+on a :
+```
+Wed Jan  3 02:26:14 2018 OpenVPN 2.3.4 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [EPOLL] [PKCS11] [MH] [IPv6] built on Jun 26 2017
+Wed Jan  3 02:26:14 2018 library versions: OpenSSL 1.0.1t  3 May 2016, LZO 2.08
+Wed Jan  3 02:26:14 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:26:14 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:26:14 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:26:14 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+Wed Jan  3 02:27:14 2018 TLS Error: TLS key negotiation failed to occur within 60 seconds (check your network connectivity)
+Wed Jan  3 02:27:14 2018 TLS Error: TLS handshake failed
+Wed Jan  3 02:27:14 2018 SIGUSR1[soft,tls-error] received, process restarting
+Wed Jan  3 02:27:14 2018 Restart pause, 2 second(s)
+Wed Jan  3 02:27:16 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:27:16 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:27:16 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:27:16 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+Wed Jan  3 02:28:16 2018 TLS Error: TLS key negotiation failed to occur within 60 seconds (check your network connectivity)
+Wed Jan  3 02:28:16 2018 TLS Error: TLS handshake failed
+Wed Jan  3 02:28:16 2018 SIGUSR1[soft,tls-error] received, process restarting
+Wed Jan  3 02:28:16 2018 Restart pause, 2 second(s)
+Wed Jan  3 02:28:18 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:28:18 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:28:18 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:28:18 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+Wed Jan  3 02:29:18 2018 TLS Error: TLS key negotiation failed to occur within 60 seconds (check your network connectivity)
+Wed Jan  3 02:29:18 2018 TLS Error: TLS handshake failed
+Wed Jan  3 02:29:18 2018 SIGUSR1[soft,tls-error] received, process restarting
+Wed Jan  3 02:29:18 2018 Restart pause, 2 second(s)
+Wed Jan  3 02:29:20 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:29:20 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:29:21 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:29:21 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+```
+oui mais je n'ai pas de tun dans ifconfig.
+
+
 Si votre openvpn est votre routeur ce sera l'adresse du routeur 192.168.1.1.
 
 # configuration du client
+cd /etc/openvpn
+touch openvpn.conf
+
 openvpn client.conf
 s'assurer que le lien est up avec `ifconfig tun0`
 on doit avoir une ligne du genre : ` inet addr:10.8.0.6  P-t-P:10.8.0.5  Mask:255.255.255.255`
@@ -318,7 +399,8 @@ Depuis le client traceroute 192.168.10.65 (ip address LAN du réseau du serveur)
 ping 192.168.10.65
 
 
-# /etc/config/openvpn
+# /etc/config/openvpnn serveur
+
 ```
 config openvpn 'myvpn'
         option enable '1'
