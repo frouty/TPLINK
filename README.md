@@ -552,6 +552,17 @@ Ce qui pour openwrt se traduit en : `uci add_list openvpn.myvpn.push='route 10.6
 Cela devrait pouvoir nous permettre de pinguer les ip du reseau du cabinet depuis le client.
 
 # ping 10.66.0.200 bingo
+# j'éteins et je ralume le pc et là pas moyen de pinguer sur l'autre réseau local.   
+openvpn tourne  
+on fait un restart. `service openvpn restart`. Et là j'ai a nouveau la bonne séquence dans le openvpn.log_action_msg
+```
+Thu Jan  4 21:08:27 2018 do_ifconfig, tt->ipv6=0, tt->did_ifconfig_ipv6_setup=0
+Thu Jan  4 21:08:27 2018 /sbin/ip link set dev tun0 up mtu 1500
+Thu Jan  4 21:08:27 2018 /sbin/ip addr add dev tun0 local 10.8.0.6 peer 10.8.0.5
+Thu Jan  4 21:08:27 2018 /sbin/ip route add 10.66.0.0/24 via 10.8.0.5
+Thu Jan  4 21:08:27 2018 /sbin/ip route add 10.8.0.1/32 via 10.8.0.5
+Thu Jan  4 21:08:27 2018 Initialization Sequence Completed
+```
 
 # Config du tel
 J'installe le tel sur son switch à la maison  
@@ -564,4 +575,20 @@ upload VPN Config / browse / je prends le /etc/openvpn/client.conf / import
 me dit qu'il veut un ovpn ou un tar. 
 J'ai essayé de renomer le client,conf en client.ovpn ne marche pas.
 
-Je ne trouve pas comment configurer l'ip phone avec un server openvpn sur le main router. 
+Je ne trouve pas comment configurer l'ip phone avec un server openvpn sur le main router. Donc j'utile la méthode de freepbx avec un server VPN sur le freepx
+# Comment configurer un VPN server sur le Freepbx. 
+
+
+# adresse ip de l'ip phone. elle est obtenue par le dhcp du réseau sur lequel est branché le téléphone. 
+elle sert à aller sur le webgui.
+l'account est not registered. je ne comprends pas pourquoi.
+Dans le web gui du telephone : Account / Basic / Connect Mode je coche VPN. Cela ne change rien  
+Dans le EPM / sangome Template / provisionning / HTTP au lieu de TFTP  
+Je vois que  dans l'ucp je download un fichier .zip vide.
+Et dans user management / onglet VPN / autocreate a link yes au lieu de inherit
+Dans l'ucp je vois apparaitre un nouveau lien hellocab-5 en plus de Hello Cab VPN client.
+Mais toujours 0 bite. 
+Settings / EPM / VPN client je passe de Hello Cab vPN client à hellocab-5 / Save and Rebuild  
+UCP non toujours client zip O bytes
+System admin / vpn / onglet settings / Enabled no to yes
+Je ne peux plus pinguer 10.66.0.2. autres ip du reseau OK. 
