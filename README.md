@@ -13,6 +13,7 @@ initialement on a le factory firmware : 3.15.1 Build 160616 Rel.44182n
 
 
 
+
 metre dans /etc/profile:
 ```
  export PS1='\[\033[35;1m\]\u\[\033[0m\]@\[\033[31;1m\]\h \[\033[32;1m\]$PWD\[\033[0m\] [\[\033[35m\]\#\[\033[0m\]]\[\033[31m\]\$\[\033[0m\] '
@@ -47,6 +48,7 @@ Config du serveur VPN : https://wiki.openwrt.org/doc/howto/vpn.openvpnPour voir 
 
 interet du vpn: Guest network access can easily be granted because you do not need to care about the things your guests are using your Internet for. :)https://blog.ipredator.se/howto/openwrt/configuring-openvpn-on-openwrt.html
 
+https://wiki.openwrt.org/doc/howto/vpn.openvpn
 
 # Création des clefs/certificats.
 Le fichier de conf de easy-rsa est dans /etc/easy-rsa/vars.
@@ -265,14 +267,12 @@ IP 103.17.47.187
 
 
 Quand est ce qu'on donne l'adresse du serveur vpn? dans le fichier de configuration du client /etc/config/openvpn : option remote SERVER_IP_ADRESS 1194
-option remote 'pw.openvpn.ipredator.se 1194'
-```
+option remote `pw.openvpn.ipredator.se 1194`
 
- YOu will need to open port 1194 (TCP) to be forwarding through the firewall to your OpenVPN server.
-
+You will need to open port 1194 (TCP) to be forwarding through the firewall to your OpenVPN server.  
 
 You can easily find out your OpenVPN server IP address. The syntax is as follows to get tun0 ip address on Unix or Linux:
-ifconfig tun0
+`ifconfig tun0`
 
 OR use Linux specific command:
 ip a show tun0
@@ -289,16 +289,115 @@ mais je me retrouve avec un repertoire keys vide.
 - If you don't mind reconfiguring your network, you could also unplug the modem, plug a computer in its place, set the router WAN to a static IP (192.168.64.1) and the computer on 192.168.64.2, and try connecting to the VPN using the .1 IP.
 - En utilisant une connection 3G
 - En changeant l'option remote pour qu'elle pointe vers l'adresse IP privée du serveur openvpn.
-~~~
+```
 client
 dev tap
 proto udp
 # remote yourddns.dyndns.org 5712
 remote 192.168.1.160 5712
-~~~~
+```
+
+# Le client sur une debian:
+cd /etc/openvpn  
+touch client.conf  
+y mettre
+```
+dev tun
+proto udp
+
+verb 3
+
+ca /etc/openvpn/ca.crt
+cert /etc/openvpn/my-openvpn-client.crt
+key /etc/openvpn/my-openvpn-client.key
+
+client 
+remote-cert-tls server
+remote kuendu.ddns.net 1194
+```
+
+On démarre le client avec la commande `service openvpn stop service openvpn start`  
+Pas besoin de mettre le chemin du fichier de config le script init va chercher automatiquement les .conf dans /etc/openvp.  
+
+Ou est le fichier de log?
+
+Dans le script /etc/init.d/openvpn on des lignes comme:
+log_daemon_msg  
+log_progress_msg  
+log_end_msg  
+log_action_msg  
+log_success_msg  
+log_failure_msg  
+log_warning_msg  
+
+Il semblerait que les msg s'affiche en console.
+
+On trouve le log dans /etc/openvpn/openvpn.log.
+
+- 1 `service openvpn stop service openvpn start`  
+rien en console  
+ps aux | grep openvpn rien
+rien ne bouge dans etc/openvpn/openvpn.log.
+dans /var/log rien juste dans syslog started openvpn service.
+- 2 `openvpn --config /etc/openvpn/openvpn.log`  en user ca ne marche pas 
+rien dans le log. 
+j'ai un process avec ps aux | grep openvpn
+- 3  `openvpn --config /etc/openvpn/openvpn.log`  (en root)
+-4  si je rm le openvpn.log il n'est pas recrée lors de service openvpn start et aussi /etC/init.d/openvpn 
+
+
+
+# installer ohmyzsh en root
+sudo su
+sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
+
+
+on a :
+```
+Wed Jan  3 02:26:14 2018 OpenVPN 2.3.4 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [EPOLL] [PKCS11] [MH] [IPv6] built on Jun 26 2017
+Wed Jan  3 02:26:14 2018 library versions: OpenSSL 1.0.1t  3 May 2016, LZO 2.08
+Wed Jan  3 02:26:14 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:26:14 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:26:14 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:26:14 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+Wed Jan  3 02:27:14 2018 TLS Error: TLS key negotiation failed to occur within 60 seconds (check your network connectivity)
+Wed Jan  3 02:27:14 2018 TLS Error: TLS handshake failed
+Wed Jan  3 02:27:14 2018 SIGUSR1[soft,tls-error] received, process restarting
+Wed Jan  3 02:27:14 2018 Restart pause, 2 second(s)
+Wed Jan  3 02:27:16 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:27:16 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:27:16 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:27:16 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+Wed Jan  3 02:28:16 2018 TLS Error: TLS key negotiation failed to occur within 60 seconds (check your network connectivity)
+Wed Jan  3 02:28:16 2018 TLS Error: TLS handshake failed
+Wed Jan  3 02:28:16 2018 SIGUSR1[soft,tls-error] received, process restarting
+Wed Jan  3 02:28:16 2018 Restart pause, 2 second(s)
+Wed Jan  3 02:28:18 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:28:18 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:28:18 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:28:18 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+Wed Jan  3 02:29:18 2018 TLS Error: TLS key negotiation failed to occur within 60 seconds (check your network connectivity)
+Wed Jan  3 02:29:18 2018 TLS Error: TLS handshake failed
+Wed Jan  3 02:29:18 2018 SIGUSR1[soft,tls-error] received, process restarting
+Wed Jan  3 02:29:18 2018 Restart pause, 2 second(s)
+Wed Jan  3 02:29:20 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Wed Jan  3 02:29:20 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Wed Jan  3 02:29:21 2018 UDPv4 link local (bound): [undef]
+Wed Jan  3 02:29:21 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
+```
+
+Je n'ai plus cela ni avec openvpn --config ... ou service openvpn restart
+
+oui mais je n'ai pas de tun dans ifconfig.
+
+
 Si votre openvpn est votre routeur ce sera l'adresse du routeur 192.168.1.1.
 
 # configuration du client
+cd /etc/openvpn
+touch client.conf
+
 openvpn client.conf
 s'assurer que le lien est up avec `ifconfig tun0`
 on doit avoir une ligne du genre : ` inet addr:10.8.0.6  P-t-P:10.8.0.5  Mask:255.255.255.255`
@@ -318,7 +417,8 @@ Depuis le client traceroute 192.168.10.65 (ip address LAN du réseau du serveur)
 ping 192.168.10.65
 
 
-# /etc/config/openvpn
+# /etc/config/openvpn serveur
+
 ```
 config openvpn 'myvpn'
         option enable '1'
@@ -353,166 +453,142 @@ avec des choix :
 et cela utilise le fichier /etc/config/openvpn_recipes.
  
 
+# Le client
+Dans /etc/openvpn  
+touch client.conf  
+## pour lancer le client 
+### `service openvpn start`
+n'a pas besoin de savoir ou le .conf. Utilise tous le .conf de /etc/openvpn  
 
 
+## le fichier de log
+dans /etc/openvpn
+nom : openvpn.log  
+Si je le rm il n'est pas recrée par `service openvpn start` ni par `openvpn --config /etc/openvpn/client.conf`
+Un reboot et le fichier est recrée.  il est récrée avec des lignes alors que je n'ai pas lancer openvpn !!!!
+ps aux | grep openvpn J'ai bien openvpn qui tourne. pourquoi openvpn demarre au reboot? TODO
 
+## debugging
+Je vois que [AF_INET]103.17.45.190:1194 qui est bien l'adresse IP du cabinet. C'est pas sur.
 
-
-
-
-# configuration du TPlink en wifi AP.
-## Edit the lan interface
-### arreter le service DHCP pour la lan interface
-### Créer une nouvelle interface wireless
-Dans le fichier /etc/config/wireless on a :
-- wifi-device qui concerne l'aspect matériel
-- wifi-interface qui concerne l'aspect reseau
-
-Pour ce faire network / wireless / add puis :
-- device configuration on ne fait rien
-- interface configuration:
-	- ESSID: un nom qui va bien (ie RADIO_GUEST)
-	- Mode:  access point 
-	- Network : create : un nom qui va bien (ie IF_GUEST)
-	- Save and Apply
-On voit que dans le fichier /etc/config/wireless on a juste ajouté:
-
-```
-config wifi-iface
-	option device 'radio0'
-	option mode 'ap'
-	option encryption 'none'
-	option ssid 'RADIO_GUEST'
-	option network 'IF_GUEST'
-```
-
-On se retrouve avec deux SSID. On doit donc pouvoir soit à l'un soit à l'autre. 
-
-### configurer cette nouvelle interface
-On voit que dans le fichier /etc/config/network ce qui est nouveau c'est :
-```
-config interface 'IF_GUEST'
-	option proto 'none'
-```
-On va configurer maintenant cette interface:
-- network / interface:
-- common config
-	- protocol : static address . Really switch protocol? switch protocol
-	- IPv4 address : une address d'un autre subnet que celle du lan.
-	- IPv4 netmask: 255.255.255.0
-	- IPv4 gateway : on laisse vide 
-- DHCP Server
-	- setup DHCP server
-	- configurer les addresses ip pour éviter les conflits d'ip
-- onglet firewall setting:
-	- pour cette nouvelle interface on crée une nouvelle zone. unspecified or create: GUEST_ZONE.  
-Ce qui ajoute ceci au fichier /etc/config/firewall
+TLS Error: TLS key negotiation failed to occur within 60 seconds  
+Grossiere erreur dans le client.conf ce n'est pas kuendu.ddns.net qu'il faut mettre mais goeen.ddns.net.  
+`service openvpn restart`  
+C'est nettement mieux :
 
 ```
-config zone
-	option name 'GUEST_ZONE'
-	option input 'ACCEPT'
-	option forward 'REJECT'
-	option output 'ACCEPT'
-	option network 'IF_GUEST'
-```	
-
-### configurer le firewall
-network / firewall  
-C'est mal expliqué sur le site    
-- GUEST_ZONE IF_GUEST Edit  
-- General setting je ne change rien  
-- Inter-Zone Forwarding : 
-	- Allow forward to destination zones : lan
-j'ai accept dans zones / input sur le site c'est reject.  
-Je le passe à reject.  
-
-### ajouter des traffic rules :
-Traffic rules / new forward rule  
-une regle pour que les requetes dhcp aboutissent:
-	- Name : allow_GUEST_DHCP
-	- Add and Edit
-		- restrict to address family : IPv4 and Ipv6
-		- protocol udp
-		- Match icmp type : any
-		- Source zone : GUEST_ZONE
-		- source mac address : any
-		- source address : any
-		- source port : any
-		- destination zone : device (j'ai pas compris pourquoi. Je crois que le device c'est le router)
-		- destination address : any
-		- destination port : 67-68
-		- extra argument : empty
-et cela donne une regle :
-```
-Any udp
-From any host in GUEST_ZONE
-To any router IP at ports 67-68 on this device
-
-Accept input
+Thu Jan  4 06:26:02 2018 WARNING: file '/etc/openvpn/my-openvpn-client.key' is group or others accessible
+Thu Jan  4 06:26:02 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
+Thu Jan  4 06:26:02 2018 UDPv4 link local (bound): [undef]
+Thu Jan  4 06:26:02 2018 UDPv4 link remote: [AF_INET]103.17.47.187:1194
+Thu Jan  4 06:26:02 2018 TLS: Initial packet from [AF_INET]103.17.47.187:1194, sid=04ed319e 76602813
+Thu Jan  4 06:26:02 2018 VERIFY OK: depth=1, C=US, ST=CA, L=SanFrancisco, O=Fort-Funston, OU=MyOrganizationalUnit, CN=Fort-Funston CA, name=EasyRSA, emailAddress=me@myhost.mydomain
+Thu Jan  4 06:26:02 2018 Validating certificate key usage
+Thu Jan  4 06:26:02 2018 ++ Certificate has key usage  00a0, expects 00a0
+Thu Jan  4 06:26:02 2018 VERIFY KU OK
+Thu Jan  4 06:26:02 2018 Validating certificate extended key usage
+Thu Jan  4 06:26:02 2018 ++ Certificate has EKU (str) TLS Web Server Authentication, expects TLS Web Server Authentication
+Thu Jan  4 06:26:02 2018 VERIFY EKU OK
+Thu Jan  4 06:26:02 2018 VERIFY OK: depth=0, C=US, ST=CA, L=SanFrancisco, O=Fort-Funston, OU=MyOrganizationalUnit, CN=my_openvpn_server, name=EasyRSA, emailAddress=me@myhost.mydomain
+Thu Jan  4 06:26:03 2018 Data Channel Encrypt: Cipher 'BF-CBC' initialized with 128 bit key
+Thu Jan  4 06:26:03 2018 Data Channel Encrypt: Using 160 bit message hash 'SHA1' for HMAC authentication
+Thu Jan  4 06:26:03 2018 Data Channel Decrypt: Cipher 'BF-CBC' initialized with 128 bit key
+Thu Jan  4 06:26:03 2018 Data Channel Decrypt: Using 160 bit message hash 'SHA1' for HMAC authentication
+Thu Jan  4 06:26:03 2018 Control Channel: TLSv1, cipher TLSv1/SSLv3 DHE-RSA-AES256-SHA, 2048 bit RSA
+Thu Jan  4 06:26:03 2018 [my_openvpn_server] Peer Connection Initiated with [AF_INET]103.17.47.187:1194
+Thu Jan  4 06:26:06 2018 SENT CONTROL [my_openvpn_server]: 'PUSH_REQUEST' (status=1)
+Thu Jan  4 06:26:06 2018 PUSH: Received control message: 'PUSH_REPLY,route 10.66.0.0 255.255.255.0,dhcp-option DNS 10.66.0.1,route 10.8.0.1,topology net30,ping 10,ping-restart 120,ifconfig 10.8.0.6 10.8.0.5'
+Thu Jan  4 06:26:06 2018 OPTIONS IMPORT: timers and/or timeouts modified
+Thu Jan  4 06:26:06 2018 OPTIONS IMPORT: --ifconfig/up options modified
+Thu Jan  4 06:26:06 2018 OPTIONS IMPORT: route options modified
+Thu Jan  4 06:26:06 2018 OPTIONS IMPORT: --ip-win32 and/or --dhcp-option options modified
+Thu Jan  4 06:26:06 2018 ROUTE_GATEWAY 192.168.1.1/255.255.255.0 IFACE=eth0 HWADDR=00:25:22:16:3b:e5
+Thu Jan  4 06:26:06 2018 TUN/TAP device tun0 opened
+Thu Jan  4 06:26:06 2018 TUN/TAP TX queue length set to 100
+Thu Jan  4 06:26:06 2018 do_ifconfig, tt->ipv6=0, tt->did_ifconfig_ipv6_setup=0
+Thu Jan  4 06:26:06 2018 /sbin/ip link set dev tun0 up mtu 1500
+Thu Jan  4 06:26:06 2018 /sbin/ip addr add dev tun0 local 10.8.0.6 peer 10.8.0.5
+Thu Jan  4 06:26:06 2018 /sbin/ip route add 10.66.0.0/24 via 10.8.0.5
+Thu Jan  4 06:26:06 2018 /sbin/ip route add 10.8.0.1/32 via 10.8.0.5
+Thu Jan  4 06:26:06 2018 Initialization Sequence Completed
 ```
 
-une regle pour le DNS: 
-	- Name : allow_GUEST_DNS
-	- Add and Edit
-		- restrict to address family : IPv4 and Ipv6
-		- protocol : TCP + UDP
-		- Match icmp type : any
-		- Source zone : GUEST_ZONE
-		- source mac address : any
-		- source address : any
-		- source port : any
-		- destination zone : device (j'ai pas compris pourquoi. Je crois que le device c'est le router)
-		- destination address : any
-		- destination port : 53
-		- extra argument : empty
-et cela donne une regle :
+# comment on test depuis le client?
+## ping IP du server 
+OK
+## On vérifie la création de l'interface tun
+- 1 `cat /etc/openvpn/openvpn.log | grep tun`
+- 2 `ifconfig `  
+inet addr:10.8.0.6  P-t-P:10.8.0.5  Mask:255.255.255.255  
+
+
+## traceroute
+- `traceroute 10.8.0.1`  
+pourquoi 1 ? TODO  
+retourne :
+traceroute to 10.8.0.1 (10.8.0.1), 30 hops max, 60 byte packets
+ 1  10.8.0.1 (10.8.0.1)  49.363 ms  51.015 ms  53.385 ms
+- `traceroute 8.8.8.8`  
+traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets  
+ 1  OpenWrt.lan (192.168.1.1)  12.743 ms  15.067 ms  15.075 ms  
+ 2  202.22.235.253 (202.22.235.253)  29.926 ms  29.927 ms  31.662 ms  
+ 3  202.22.224.41 (202.22.224.41)  36.408 ms  36.419 ms  38.701 ms  
+ 4  202.87.128.65 (202.87.128.65)  38.732 ms  40.234 ms  42.989 ms  
+ 5  202.87.128.77 (202.87.128.77)  66.858 ms  66.867 ms  69.123 ms  
+ 6  202.87.128.78 (202.87.128.78)  69.085 ms  41.048 ms  54.076 ms  
+ 7  108.170.247.33 (108.170.247.33)  55.660 ms 108.170.247.49 (108.170.247.49)  55.667 ms 108.170.247.33 (108.170.247.33)  55.652 ms  
+ 8  209.85.251.53 (209.85.251.53)  57.124 ms 216.239.41.191 (216.239.41.191)  53.426 ms 216.239.41.83 (216.239.41.83)  53.411 ms  
+ 9  google-public-dns-a.google.com (8.8.8.8)  59.310 ms  59.315 ms  59.299 ms  
+ On voit que l'on passe par le router du client et pas par l'openvpn server.
+
+ - `nmap -sP 10.8.0.0/24` retourne que seul l'hote 10.8.0.6 est up. 
+ 
+ # j'ai ma conncetion avec le server. Mais ensuite.
+ Once the VPN is operational in a point-to-point capacity between client and server, it may be desirable to expand the scope of the VPN so that clients can reach multiple machines on the server network, rather than only the server machine itself.  
+ For the purpose of this example, we will assume that the server-side LAN uses a subnet of 10.66.0.0/24 and the VPN IP address pool uses 10.8.0.0/24 as cited in the server directive in the OpenVPN server configuration file. 
+  First, you must advertise the 10.66.0.0/24 subnet to VPN clients as being accessible through the VPN. This can easily be done with the following server-side config file directive:
+`push "route 10.66.0.0 255.255.255.0"`  
+Ce qui pour openwrt se traduit en : `uci add_list openvpn.myvpn.push='route 10.66.0.0 255.255.255.0'`  
+Cela devrait pouvoir nous permettre de pinguer les ip du reseau du cabinet depuis le client.
+
+# ping 10.66.0.200 bingo
+# j'éteins et je ralume le pc et là pas moyen de pinguer sur l'autre réseau local.   
+openvpn tourne  
+on fait un restart. `service openvpn restart`. Et là j'ai a nouveau la bonne séquence dans le openvpn.log_action_msg
 ```
-Any traffic
-From any host in GUEST_ZONE
-To any router IP at port 53 on this device
-
-Accept input
+Thu Jan  4 21:08:27 2018 do_ifconfig, tt->ipv6=0, tt->did_ifconfig_ipv6_setup=0
+Thu Jan  4 21:08:27 2018 /sbin/ip link set dev tun0 up mtu 1500
+Thu Jan  4 21:08:27 2018 /sbin/ip addr add dev tun0 local 10.8.0.6 peer 10.8.0.5
+Thu Jan  4 21:08:27 2018 /sbin/ip route add 10.66.0.0/24 via 10.8.0.5
+Thu Jan  4 21:08:27 2018 /sbin/ip route add 10.8.0.1/32 via 10.8.0.5
+Thu Jan  4 21:08:27 2018 Initialization Sequence Completed
 ```
 
-J'ai fait un reset du routeur.  
-et pas moyen d'obtenir une ip avec RADIO_GUEST. En fait des elements de config dans network/ interface / IF_GUEST avait fait pshittt.
+# Config du tel
+J'installe le tel sur son switch à la maison  
+obtient son adress ip depuis le dhcp du main router de la maison. je pense que c'est normal je n'ai pas configuré le client de l'ipphone. 
+je le vois apparaitre dans les dhcp lease du routeur.   
+http ipduphone 
+Network / advanced  / vpn  
+active Yes   
+upload VPN Config / browse / je prends le /etc/openvpn/client.conf / import 
+me dit qu'il veut un ovpn ou un tar. 
+J'ai essayé de renomer le client,conf en client.ovpn ne marche pas.
 
-OK j'ai mon ip en 192.168.2.xxx. Mais j'ai pas internet.
+Je ne trouve pas comment configurer l'ip phone avec un server openvpn sur le main router. Donc j'utile la méthode de freepbx avec un server VPN sur le freepx
+# Comment configurer un VPN server sur le Freepbx. 
 
-Si j'ai bien compris les paquets sont forwardés de 192.168.2.x vers 192.168.1.x par le routeur AP. Mais je n'ai jamais pu le vérifier. Maintenant il faut configurer le routeur principal. Il faut lui faire connaitre ce nouveau subnet (192.168.2.x). 
 
-Sur le routeur principal si j'essaie de pinger un device connecté au reseau 192.168.4.x je n'y arrive pas 
-Sur le routeur principal :  
-Network / onglet static route / this section contains no value yet  
-Add  
-- interface: lan
-- target 192.168.4.0 sous réseau de la nouvelle interface wifi
-- netmask : 255.255.255.0
-- ipV4 gateway qui est l'adresse lan de l'AP : 192.168.1.254
-- metric inchange
-- mtu inchangé
-
-Et la bingo j'arrive à pinguer depuis le routeur principal l'adresse 192.168.4.x d'un device connecté à l'access point.  Je n'y arrive plus.
-Par contre je ne peux pas surfer  
-
-```
-# Insert (-I) entries into your public zone's forwarding rule
-## Reject all traffic
-iptables -I forwarding_ZONE_GUEST_rule -j REJECT
-## Reject all TCP traffic with reset flag to avoid unnessecary timeouts
-iptables -I forwarding_ZONE_GUEST_rule -p tcp -j REJECT --reject-with tcp-reset
-
-# Allow certain traffic
-iptables -I forwarding_ZONE_GUEST_rule -p tcp -m tcp --dport 80 -j ACCEPT -m comment --comment "Allow traffic on port 80"
-iptables -I forwarding_ZONE_GUEST_rule -p tcp -m tcp --dport 443 -j ACCEPT -m comment --comment "Allow traffic on port 443"
-# Reject traffic with destination LAN
-iptables -I forwarding_Z_Wifi_Mitg_rule -d 192.168.2.0/24 -j REJECT
-# Add a closing NewLine, otherwise the last command may be not interpreted correctly (e.g. because you did not use vi as editor).
-```
-depuis le routeur principal je peux pinguer : 192.168.4.1. Je ne peux pas pinguer un device connecté en 192.168.4.x.  
-Depuis le device connecté en 192.168.4.x je peux pinguer 8.8.8.8, 139.130.4.5. Je ne peux pas pinguer www.google.com
-Depuis l'AP je peux pinguer 8.8.8.8 mais pas www.google.com  
-donc j'ajoute  dans network / interface / lan / use custom DNS server : 8.8.8.8
-et c'est bon je peux surfer depuis le device.
-et aussi network / interface / lan / use custom DNS server : 192.168.1.1 (adresse lan du routeur principal)
+# adresse ip de l'ip phone. elle est obtenue par le dhcp du réseau sur lequel est branché le téléphone. 
+elle sert à aller sur le webgui.
+l'account est not registered. je ne comprends pas pourquoi.
+Dans le web gui du telephone : Account / Basic / Connect Mode je coche VPN. Cela ne change rien  
+Dans le EPM / sangome Template / provisionning / HTTP au lieu de TFTP  
+Je vois que  dans l'ucp je download un fichier .zip vide.
+Et dans user management / onglet VPN / autocreate a link yes au lieu de inherit
+Dans l'ucp je vois apparaitre un nouveau lien hellocab-5 en plus de Hello Cab VPN client.
+Mais toujours 0 bite. 
+Settings / EPM / VPN client je passe de Hello Cab vPN client à hellocab-5 / Save and Rebuild  
+UCP non toujours client zip O bytes
+System admin / vpn / onglet settings / Enabled no to yes
+Je ne peux plus pinguer 10.66.0.2. mais les autres ip du reseau : OK. 
