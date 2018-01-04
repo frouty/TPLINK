@@ -591,4 +591,4 @@ Mais toujours 0 bite.
 Settings / EPM / VPN client je passe de Hello Cab vPN client à hellocab-5 / Save and Rebuild  
 UCP non toujours client zip O bytes
 System admin / vpn / onglet settings / Enabled no to yes
-Je ne peux plus pinguer 10.66.0.2. autres ip du reseau OK. 
+Je ne peux plus pinguer 10.66.0.2. mais les autres ip du reseau : OK. 
