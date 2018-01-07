@@ -592,3 +592,13 @@ Settings / EPM / VPN client je passe de Hello Cab vPN client à hellocab-5 / Sav
 UCP non toujours client zip O bytes
 System admin / vpn / onglet settings / Enabled no to yes
 Je ne peux plus pinguer 10.66.0.2. mais les autres ip du reseau : OK. 
+Je redemarre le server openvpn toujours 10.66.0.2 inacessible.
+ping 10.66.0.2 ne marche pas.
+EN fait pour avoir un client.zip non vide il faut le créer en ucp mais en local (= sur les reseau du serveur)
+Je continue mais bon je ne suis pas convaincu que cela marche car je n'arrive pas à pinguer le server freepbx du cabinet.
+http://ipphone - Network - Advanced - VPN je prends le client0.zip.
+Me demande un .ovpn ou un tar. Le .zip n'est pas accepté.
+
+Once you enable VPN for a user in user manager and have your VPN server running all you do is in end point manager you go edit extension routing  
+and tell the extension what VPN client to use. This will rebuild the config for that phone and have it connect to the PBX using  
+the VPN IP not the IP defined in the template.
