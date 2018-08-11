@@ -175,16 +175,16 @@ key /etc/openvpn/my-openvpn-client.key
 remote-cert-tls server
 remote goeen.ddns.net 1200  <== on retrouve le changement de port
 ```
-tree /etc/openvpn  sur le client linux.
-/etc/openvpn
-├── ca.crt
-├── client.conf
-├── client.trash
-├── my-openvpn-client.crt
-├── my-openvpn-client.key
-├── openvpn.log
-├── server.trash
-└── update-resolv-conf
+tree /etc/openvpn  sur le client linux.  
+/etc/openvpn  
+├── ca.crt  
+├── client.conf  
+├── client.trash  
+├── my-openvpn-client.crt  
+├── my-openvpn-client.key  
+├── openvpn.log  
+├── server.trash  
+└── update-resolv-conf  
 
 
 # pour windows 
