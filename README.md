@@ -97,30 +97,87 @@ Si votre openvpn est votre routeur ce sera l'adresse du routeur 192.168.1.1.
 
 
 
-# /etc/config/openvpn serveur
+# /etc/config/openvpn serveur c'est à dire sur le routeur openwrt.
 
 ```
 config openvpn 'myvpn'
         option enable '1'
         option verb '3'
-        option port '1194'
+        option port '1194'  <== on peut le changer mais il faudra le renseigner dans client.conf.
         option proto 'udp'
         option dev 'tun'
-        option server '10.8.0.0 255.255.255.0'
+        option server '10.10.0.0 255.255.255.0'
         option keepalive '10 120'
         option ca '/etc/openvpn/ca.crt'
         option dh '/etc/openvpn/dh2048.pem'
-        option cert '/etc/openvpn/my.server.crt'
-        option key '/etc/openvpn/my.server.key'
+        option cert '/etc/openvpn/my_openvpn_server.crt'
+        option key '/etc/openvpn/my_openvpn_server.key'
         option log '/tmp/openvpn.log'
         option ifconfig_pool_persit '/tmp/ipp.txt'
         option status '/tmp/openvpn-status.log'
         list push 'route 10.66.0.0 255.255.255.0'
         list push 'dhcp-option DNS 10.66.0.1'
 ```
-mais je ne sais pas si il marche.
+```
+ls /etc/openvpn  
+dh2048.pem
+my_openvpn_server.crt
+my_openvpn_server.csr
+my_openvpn_server.key
+```
+
+# /etc/openvpn sur le client linux.
+```
+client
+dev tun
+proto udp
+
+log openvpn.log
+verb 3
+
+resolv-retry infinite
+
+ca /etc/openvpn/ca.crt
+cert /etc/openvpn/my-openvpn-client.crt
+key /etc/openvpn/my-openvpn-client.key
 
 
+remote-cert-tls server
+remote goeen.ddns.net 1200  <== on retrouve le changement de port
+```
+tree /etc/openvpn  sur le client linux.  
+/etc/openvpn  
+├── ca.crt  
+├── client.conf  
+├── client.trash  
+├── my-openvpn-client.crt  
+├── my-openvpn-client.key  
+├── openvpn.log  
+├── server.trash  
+└── update-resolv-conf  
+
+
+# pour windows 
+il faut récupérer les fichiers .crt, .key, les mettre dans C:/Program/openvpn/config avec aussi un client.conf
+
+```
+client
+dev tun
+proto udp
+
+log openvpn.log
+verb 3
+
+resolv-retry infinite
+
+ca ca.crt
+cert my-openvpn-client.crt
+key my-openvpn-client.key
+
+
+remote-cert-tls server
+remote goeen.ddns.net 1200  <== on retrouve le changement de port
+```
 
 
 
