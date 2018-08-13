@@ -20,7 +20,7 @@ metre dans /etc/profile:
  ```
 c'est plus jolie.
 
-switch port
+# switch port
 
 0  eth1  
 1  wan  
@@ -49,33 +49,6 @@ Config du serveur VPN : https://wiki.openwrt.org/doc/howto/vpn.openvpnPour voir 
 interet du vpn: Guest network access can easily be granted because you do not need to care about the things your guests are using your Internet for. :)https://blog.ipredator.se/howto/openwrt/configuring-openvpn-on-openwrt.html
 
 https://wiki.openwrt.org/doc/howto/vpn.openvpn
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -119,9 +92,6 @@ Wed Jan  3 02:29:20 2018 Socket Buffers: R=[212992->131072] S=[212992->131072]
 Wed Jan  3 02:29:21 2018 UDPv4 link local (bound): [undef]
 Wed Jan  3 02:29:21 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
 ```
-
-
-
 
 Si votre openvpn est votre routeur ce sera l'adresse du routeur 192.168.1.1.
 
