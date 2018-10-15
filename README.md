@@ -57,6 +57,7 @@ https://wiki.openwrt.org/doc/howto/vpn.openvpn
 sudo su
 sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
+# OPENVPN
 
 
 on a :
@@ -125,6 +126,21 @@ my_openvpn_server.crt
 my_openvpn_server.csr
 my_openvpn_server.key
 ```
+
+## Comment redémarrer le service openvpn sur le routeur TPLINK
+Il semble que sur le webgui du TPLINK on arrive pas a le redémarrer
+### Comment savoir si le service tourne?
+- ps | grep openvpn
+- ifconfig tun ou ifconfig et on cherche une interface `tun`.
+
+## les fichiers de config est :
+/etc/config/openvpn
+
+## panne
+Le fichier /etc/openvpn/ca.crt a disparu que faire?  
+
+
+
 
 # /etc/openvpn sur le client linux.
 ```
