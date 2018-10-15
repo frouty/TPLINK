@@ -130,14 +130,16 @@ my_openvpn_server.key
 ## Comment redémarrer le service openvpn sur le routeur TPLINK
 Il semble que sur le webgui du TPLINK on arrive pas a le redémarrer
 ### Comment savoir si le service tourne?
-- ps | grep openvpn
-- ifconfig tun ou ifconfig et on cherche une interface `tun`.
-
+- ` ps | grep openvpn` 
+- ` ifconfig tun0`  ou ifconfig et on cherche une interface `tun`.
+- les fichiers de log :
+ - sur les server : /tmp/openvpn.log il est défini dans le fichier de config /etc/easy-rsa/keys
 ## les fichiers de config est :
-/etc/config/openvpn
+/etc/config/openvpn. Il n'est pas dans /etc/openvpn.
 
 ## panne
-Le fichier /etc/openvpn/ca.crt a disparu que faire?  
+Le fichier /etc/openvpn/ca.crt a disparu sur le router tpLink que faire?  
+`cp /etc/easy-rsa/keys/ca.crt /etc/openvp/` 
 
 
 
