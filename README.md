@@ -97,8 +97,10 @@ Wed Jan  3 02:29:21 2018 UDPv4 link remote: [AF_INET]103.17.45.190:1194
 Si votre openvpn est votre routeur ce sera l'adresse du routeur 192.168.1.1.
 
 
+## les fichiers de config est :
+/etc/config/openvpn. Il n'est pas dans /etc/openvpn.
 
-# /etc/config/openvpn serveur c'est à dire sur le routeur openwrt.
+### /etc/config/openvpn serveur c'est à dire sur le routeur openwrt.
 
 ```
 config openvpn 'myvpn'
@@ -126,16 +128,15 @@ my_openvpn_server.crt
 my_openvpn_server.csr
 my_openvpn_server.key
 ```
-
-## Comment redémarrer le service openvpn sur le routeur TPLINK
-Il semble que sur le webgui du TPLINK on arrive pas a le redémarrer
 ### Comment savoir si le service tourne?
 - ` ps | grep openvpn` 
 - ` ifconfig tun0`  ou ifconfig et on cherche une interface `tun`.
 - les fichiers de log :
  - sur les server : /tmp/openvpn.log il est défini dans le fichier de config /etc/easy-rsa/keys
-## les fichiers de config est :
-/etc/config/openvpn. Il n'est pas dans /etc/openvpn.
+ 
+## Comment redémarrer le service openvpn sur le routeur TPLINK
+Il semble que sur le webgui du TPLINK on arrive pas a le redémarrer
+`/etc/init.d/openvpn restart`
 
 ## panne
 Le fichier /etc/openvpn/ca.crt a disparu sur le router tpLink que faire?  
