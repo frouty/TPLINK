@@ -193,8 +193,10 @@ scp root@goeen.ddns.net:/etc/easy-rsa/ca.crt  ./
 la bonne commande:
 `#systemctl restart openvpn@client.service` 
 So you should restart your /etc/openvpn/myvpn.conf instance with: `systemctl restart openvpn@myvpn.service`
-On peut voir ce qui se passe dans le log du client : tail -f /var/log/syslog.
-On peut voir ce qui se passe dans le log du server : tail -f /tmp/openvpn.log.
+On peut voir ce qui se passe dans le log du client : `tail -f /var/log/syslog`
+On peut voir ce qui se passe dans le log du server : `tail -f /tmp/openvpn.log`
+Et ensuite un ping sur les addresses du cabinet.
+
 
 # pour windows 
 il faut récupérer les fichiers .crt, .key, les mettre dans C:/Program/openvpn/config avec aussi un client.conf
