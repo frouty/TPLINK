@@ -164,6 +164,9 @@ key /etc/openvpn/my-openvpn-client.key
 remote-cert-tls server
 remote goeen.ddns.net 1200  <== on retrouve le changement de port
 ```
+pour cela on crée un fichier client.conf dans /etc/openvpn sur le client linux
+On met le fichier ci dessus
+
 tree /etc/openvpn  sur le client linux.  
 /etc/openvpn  
 ├── ca.crt  
@@ -175,6 +178,16 @@ tree /etc/openvpn  sur le client linux.
 ├── server.trash  
 └── update-resolv-conf  
 
+Pour récuperer le ca.crt, my-openvpn-client.crt, my-openvpn-client.key on peut se loguer en ssh sur le serveur vpn (ie le routeur principal TPLINK du cabinet).
+scp 
+```
+sur le client linux:
+cd /etc/openvpn
+
+scp root@goeen.ddns.net:/etc/easy-rsa/keys/my-openvpn-client.key  ./
+scp root@goeen.ddns.net:/etc/easy-rsa/my-openvpn-client.crt  ./
+scp root@goeen.ddns.net:/etc/easy-rsa/ca.crt  ./
+```
 
 # pour windows 
 il faut récupérer les fichiers .crt, .key, les mettre dans C:/Program/openvpn/config avec aussi un client.conf
