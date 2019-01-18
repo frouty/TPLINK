@@ -189,7 +189,12 @@ scp root@goeen.ddns.net:/etc/easy-rsa/my-openvpn-client.crt  ./
 scp root@goeen.ddns.net:/etc/easy-rsa/ca.crt  ./
 ```
 
-Avec cette configuration je n'arrive pas à demarrer openvpn sur le client. Service openvpn start ne donne rien, rien avec ps | grep openvpn, rien sur ifconfig sur le client. il me manque quelque chose. je ne trouve pas le fichier de log. 
+`# service openvpn start` ne donne rien
+la bonne commande:
+`#systemctl restart openvpn@client.service` 
+So you should restart your /etc/openvpn/myvpn.conf instance with: `systemctl restart openvpn@myvpn.service`
+On peut voir ce qui se passe dans le log du client : tail -f /var/log/syslog.
+On peut voir ce qui se passe dans le log du server : tail -f /tmp/openvpn.log.
 
 # pour windows 
 il faut récupérer les fichiers .crt, .key, les mettre dans C:/Program/openvpn/config avec aussi un client.conf
