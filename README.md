@@ -189,6 +189,8 @@ scp root@goeen.ddns.net:/etc/easy-rsa/my-openvpn-client.crt  ./
 scp root@goeen.ddns.net:/etc/easy-rsa/ca.crt  ./
 ```
 
+Avec cette configuration je n'arrive pas à demarrer openvpn sur le client. Service openvpn start ne donne rien, rien avec ps | grep openvpn, rien sur ifconfig sur le client. il me manque quelque chose. je ne trouve pas le fichier de log. 
+
 # pour windows 
 il faut récupérer les fichiers .crt, .key, les mettre dans C:/Program/openvpn/config avec aussi un client.conf
 
